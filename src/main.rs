@@ -8,8 +8,10 @@ use std::path::Path;
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 fn main() -> Result<()> {
-    println!("advent 01b: {}", advent01a()?);
+    println!("advent 01a: {}", advent01a()?);
+    println!("advent 01b: {}", advent01b()?);
     println!("advent 02a: {}", advent02a()?);
+    println!("advent 02b: {}", advent02b()?);
     Ok(())
 }
 
@@ -24,10 +26,15 @@ fn advent01a_fuel(mass: i32) -> i32 {
     if val <= 0 {
         return 0;
     }
+    return val;
+}
+
+fn advent01b_fuel(mass: i32) -> i32 {
+    let val = advent01a_fuel(mass);
     if val < 9 {
         return val;
     }
-    let addl = advent01a_fuel(val);
+    let addl = advent01b_fuel(val);
     return val + addl;
 }
 
@@ -37,6 +44,16 @@ fn advent01a() -> Result<String> {
     for line in lines {
         let val = line?.parse::<i32>()?;
         total += advent01a_fuel(val);
+    }
+    Ok(total.to_string())
+}
+
+fn advent01b() -> Result<String> {
+    let lines = read_lines("a01-input")?;
+    let mut total: i32 = 0;
+    for line in lines {
+        let val = line?.parse::<i32>()?;
+        total += advent01b_fuel(val);
     }
     Ok(total.to_string())
 }
@@ -93,6 +110,22 @@ fn advent02a() -> Result<String> {
     prog[2] = 2;
     advent02_exec(&mut prog)?;
     Ok(prog[0].to_string())
+}
+
+fn advent02b() -> Result<String> {
+    let prog = advent02_prog()?;
+    for noun in 0..100 {
+        for verb in 0..100 {
+            let mut copy = prog.clone();
+            copy[1] = noun;
+            copy[2] = verb;
+            advent02_exec(&mut copy)?;
+            if copy[0] == 19690720 {
+                return Ok((100*noun+verb).to_string());
+            }
+        }
+    }
+    Ok("Not found".to_string())
 }
 
 #[cfg(test)]
