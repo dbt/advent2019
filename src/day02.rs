@@ -1,27 +1,6 @@
 
-use std::fs;
-use std::error;
-use std::fmt;
-
-use crate::utils::Result;
-
-#[derive(Debug,Clone)]
-struct InvalidOpcode {
-    opcode: i32
-}
-
-impl fmt::Display for InvalidOpcode {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "invalid opcode: {}", self.opcode)
-    }
-}
-
-impl error::Error for InvalidOpcode {
-    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
-        // Generic error, underlying cause isn't tracked.
-        None
-    }
-}
+use crate::utils::{self, Result};
+use crate::computer::InvalidOpcode;
 
 fn advent02_exec(program: &mut Vec<i32>) -> Result<()> {
     let mut pc = 0;
@@ -31,7 +10,7 @@ fn advent02_exec(program: &mut Vec<i32>) -> Result<()> {
             return Ok(());
         }
         if opcode < 1 || opcode > 2 {
-            return Err(Box::new(InvalidOpcode{opcode}))
+            return Err(Box::new(InvalidOpcode::new(opcode)))
         }
         let r1 = program[pc+1] as usize;
         let r2 = program[pc+2] as usize;
@@ -46,9 +25,7 @@ fn advent02_exec(program: &mut Vec<i32>) -> Result<()> {
 }
 
 fn advent02_prog() -> Result<Vec<i32>> {
-    let text = fs::read_to_string("a02-input")?;
-    let parsed: std::result::Result<Vec<_>, _> = text.trim().split(',').map(|s| s.parse::<i32>()).collect();
-    Ok(parsed?)
+    utils::load_program("a02-input")
 }
 
 pub fn part1() -> Result<String> {
