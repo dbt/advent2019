@@ -5,6 +5,7 @@ use advent2019::utils::Result;
 use advent2019::advent01::{advent01a, advent01b};
 use advent2019::advent02::{advent02a, advent02b};
 use advent2019::advent03::{advent03a, advent03b};
+use advent2019::advent04::{advent04a, advent04b};
 
 fn main() -> Result<()> {
     println!("advent 01a: {}", advent01a()?);
@@ -13,5 +14,7 @@ fn main() -> Result<()> {
     println!("advent 02b: {}", advent02b()?);
     println!("advent 03a: {}", advent03a()?);
     println!("advent 03b: {}", advent03b()?);
+    println!("advent 04a: {}", advent04a()?);
+    println!("advent 04b: {}", advent04b()?);
     Ok(())
 }
