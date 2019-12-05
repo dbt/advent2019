@@ -110,14 +110,14 @@ fn advent03b_dist(path1: String, path2: String) -> Result<usize> {
     Ok(best)
 }
 
-pub fn advent03a() -> Result<String> {
+pub fn part1() -> Result<String> {
     let mut lines = read_lines("a03-input")?;
     let input1 = lines.next().unwrap()?;
     let input2 = lines.next().unwrap()?;
     advent03a_dist(input1, input2).map(|x| x.to_string())
 }
 
-pub fn advent03b() -> Result<String> {
+pub fn part2() -> Result<String> {
     let mut lines = read_lines("a03-input")?;
     let input1 = lines.next().unwrap()?;
     let input2 = lines.next().unwrap()?;

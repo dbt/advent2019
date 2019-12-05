@@ -21,7 +21,7 @@ fn advent04b_test(a: i32, b: i32, c: i32, d: i32, e: i32, f: i32) -> bool {
     )
 }
 
-pub fn advent04a() -> Result<String> {
+pub fn part1() -> Result<String> {
     let mut counter = 0;
     for i in 171309..=643603 {
         let (a, b, c, d, e, f) = unpack(i);
@@ -32,7 +32,7 @@ pub fn advent04a() -> Result<String> {
     Ok(counter.to_string())
 }
 
-pub fn advent04b() -> Result<String> {
+pub fn part2() -> Result<String> {
     let mut counter = 0;
     for i in 171309..=643603 {
         let (a, b, c, d, e, f) = unpack(i);

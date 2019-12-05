@@ -18,7 +18,7 @@ fn advent01b_fuel(mass: i32) -> i32 {
     return val + addl;
 }
 
-pub fn advent01a() -> Result<String> {
+pub fn part1() -> Result<String> {
     let lines = read_lines("a01-input")?;
     let mut total: i32 = 0;
     for line in lines {
@@ -28,7 +28,7 @@ pub fn advent01a() -> Result<String> {
     Ok(total.to_string())
 }
 
-pub fn advent01b() -> Result<String> {
+pub fn part2() -> Result<String> {
     let lines = read_lines("a01-input")?;
     let mut total: i32 = 0;
     for line in lines {

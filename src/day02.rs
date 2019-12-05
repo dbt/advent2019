@@ -51,7 +51,7 @@ fn advent02_prog() -> Result<Vec<i32>> {
     Ok(parsed?)
 }
 
-pub fn advent02a() -> Result<String> {
+pub fn part1() -> Result<String> {
     let mut prog = advent02_prog()?;
     prog[1] = 12;
     prog[2] = 2;
@@ -59,7 +59,7 @@ pub fn advent02a() -> Result<String> {
     Ok(prog[0].to_string())
 }
 
-pub fn advent02b() -> Result<String> {
+pub fn part2() -> Result<String> {
     let prog = advent02_prog()?;
     for noun in 0..100 {
         for verb in 0..100 {
