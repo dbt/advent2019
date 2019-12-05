@@ -2,10 +2,10 @@
 extern crate advent2019;
 
 use advent2019::utils::Result;
-use advent2019::advent01::{advent01a, advent01b};
-use advent2019::advent02::{advent02a, advent02b};
-use advent2019::advent03::{advent03a, advent03b};
-use advent2019::advent04::{advent04a, advent04b};
+use advent2019::day01::{advent01a, advent01b};
+use advent2019::day02::{advent02a, advent02b};
+use advent2019::day03::{advent03a, advent03b};
+use advent2019::day04::{advent04a, advent04b};
 
 fn main() -> Result<()> {
     println!("advent 01a: {}", advent01a()?);

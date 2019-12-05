@@ -59,6 +59,7 @@ mod tests {
         assert_eq!(advent04a_test(1,2,3,7,8,9), false);
     }
 
+    #[test]
     fn test_advent04b_test() {
         assert_eq!(advent04b_test(1,1,2,2,3,3), true);
         assert_eq!(advent04b_test(1,2,3,4,4,4), false);

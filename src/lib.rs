@@ -1,7 +1,7 @@
 
 pub mod utils;
 
-pub mod advent01;
-pub mod advent02;
-pub mod advent03;
-pub mod advent04;
+pub mod day01;
+pub mod day02;
+pub mod day03;
+pub mod day04;
