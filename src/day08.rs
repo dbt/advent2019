@@ -28,6 +28,27 @@ pub fn part1() -> Result<String> {
     return Ok(ans.to_string());
 }
 
+pub fn part2() -> Result<String> {
+    let data = fs::read_to_string("a08-input")?;
+    // 25x6
+    let layers = data.trim().as_bytes().chunks(150);
+    let mut output = vec!['2'; 150];
+    for l in layers {
+        for i in 0..150 {
+            if output[i] == '2' {
+                output[i] = l[i] as char;
+            }
+        }
+    }
+    let printable: Vec<char> =
+        output.iter().map(|x| match x {
+        '0' => ' ',
+        '1' => '█',
+        _ => '?',
+    }).collect();
+    Ok(printable.chunks(25).map(|x| x.iter().collect::<String>()).collect::<Vec<String>>().join("\n"))
+}
+
 
 
 #[cfg(test)]
