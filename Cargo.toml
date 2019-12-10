@@ -3,4 +3,7 @@ name = "advent2019"
 version = "0.1.0"
 authors = ["David Terrell <dbt@meat.net>"]
 
+[profile.release]
+debug = true
+
 [dependencies]
