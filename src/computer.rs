@@ -26,99 +26,165 @@ impl error::Error for InvalidOpcode {
         None
     }
 }
+#[derive(Debug,Copy,Clone,PartialEq)]
+enum ProgramState {
+    Ready,
+    Input,
+    Output(i32),
+    Halted,
+}
 
-fn reg(program: &Vec<i32>, op: i32, pc: usize, nth: usize, addr: bool) -> i32 {
-    let val = program[pc + nth];
-    let mask = (op as u32)  /(10_u32.pow(nth as u32+1))%10;
-    assert!(!addr || mask == 0, "addr mode set but mask is 1");
-    if !addr && mask == 0 {
-        program[val as usize]
-    } else {
-        val
+struct IntCode {
+    program: Vec<i32>,
+    state: ProgramState,
+    pc: usize,
+    input: Option<i32>,
+}
+
+impl IntCode {
+    pub fn new(program: &Vec<i32>) -> IntCode {
+        return IntCode {
+            program: program.iter().copied().collect(),
+            state: ProgramState::Ready,
+            pc: 0,
+            input: None,
+        };
+    }
+
+    fn read(&self, addr: usize) -> i32 {
+        return self.program[addr];
+    }
+
+    fn write(&mut self, addr: usize, val: i32) {
+        self.program[addr] = val;
+    }
+
+    fn reg(&self, nth: usize, addr: bool) -> i32 {
+        let op = self.read(self.pc);
+        let val = self.read(self.pc + nth);
+        let mask = (op as u32) / (10_u32.pow(nth as u32+1)) % 10;
+        assert!(!addr || mask == 0, "addr mode set but mask is non-zero");
+        if !addr && mask == 0 {
+            self.read(val as usize)
+        } else {
+            val
+        }
+    }
+
+    fn rr(&self, nth: usize) -> i32 {
+        return self.reg(nth, false);
+    }
+
+    fn ra(&self, nth: usize) -> usize {
+        return self.reg(nth, true) as usize;
+    }
+
+    pub fn exec_one(&mut self) -> Result<ProgramState> {
+        let op = self.read(self.pc);
+        let opcode = op % 100;
+        if opcode == 99 || self.state == ProgramState::Halted {
+            self.state = ProgramState::Halted;
+            return Ok(self.state);
+        }
+        if opcode < 1 || opcode > 8 {
+            Err(InvalidOpcode::new(opcode))?;
+        }
+        self.state = match opcode {
+            1 => { // add
+                let r1 = self.rr(1);
+                let r2 = self.rr(2);
+                let rv = self.ra(3);
+                self.write(rv, r1 + r2);
+                self.pc += 4;
+                ProgramState::Ready
+            },
+            2 => {// multiply 
+                let r1 = self.rr(1);
+                let r2 = self.rr(2);
+                let rv = self.ra(3);
+                self.write(rv, r1 * r2);
+                self.pc += 4;
+                ProgramState::Ready
+            },
+            3 => { // input
+                if let Some(val) = self.input.take() {
+                    let rv = self.ra(1);
+                    self.write(rv, val);
+                    self.pc += 2;
+                    ProgramState::Ready
+                } else {
+                    ProgramState::Input
+                }
+            },
+            4 => { // output
+                let r1 = self.rr(1);
+                self.pc += 2;
+                ProgramState::Output(r1)
+            },
+            5 => { // jump-if-nonzero
+                let r1 = self.rr(1);
+                if r1 != 0 {
+                    self.pc = self.rr(2) as usize;
+                } else {
+                    self.pc += 3;
+                }
+                ProgramState::Ready
+            },
+            6 => { // jump-if-zero
+                let r1 = self.rr(1);
+                if r1 == 0 {
+                    self.pc = self.rr(2) as usize;
+                } else {
+                    self.pc += 3;
+                }
+                ProgramState::Ready
+            },
+            7 => { // less-than
+                let r1 = self.rr(1);
+                let r2 = self.rr(2);
+                let rv = self.ra(3);
+                self.write(rv, if r1 < r2 { 1 } else { 0 });
+                self.pc += 4;
+                ProgramState::Ready
+            },
+            8 => { // equals
+                let r1 = self.rr(1);
+                let r2 = self.rr(2);
+                let rv = self.ra(3);
+                self.write(rv, if r1 == r2 { 1 } else { 0 });
+                self.pc += 4;
+                ProgramState::Ready
+            },
+            _ => ProgramState::Halted
+        };
+        Ok(self.state)
+    }
+    pub fn feed(&mut self, input: i32) {
+        self.input = Some(input);
     }
 }
 
-fn rr(program: &Vec<i32>, op: i32, pc: usize, nth: usize) -> i32 {
-    return reg(program, op, pc, nth, false);
-}
-
-fn ra(program: &Vec<i32>, op: i32, pc: usize, nth: usize) -> usize {
-    return reg(program, op, pc, nth, true) as usize;
-}
-
-pub fn exec(program: &mut Vec<i32>, inputs: &Vec<i32>) -> Result<Vec<i32>> {
-    let mut pc: usize = 0;
+pub fn exec(program: &mut Vec<i32>, inputs: &Vec<i32>) ->Result<Vec<i32>> {
+    let mut machine = IntCode::new(program);
     let mut output: Vec<i32> = Vec::new();
     let mut inp_it = inputs.iter();
     loop {
-        let op = program[pc];
-        let opcode = op % 100;
-        if opcode == 99 {
-            return Ok(output);
-        }
-        if opcode < 1 || opcode > 8 {
-            return Err(Box::new(InvalidOpcode::new(opcode)))
-        }
-        match opcode {
-            1 => { // add
-                let r1 = rr(program, op, pc, 1);
-                let r2 = rr(program, op, pc, 2);
-                let rv = ra(program, op, pc, 3);
-                program[rv] = r1 + r2;
-                pc += 4;
+        match machine.exec_one()? {
+            ProgramState::Ready => (),
+            ProgramState::Input => {
+                machine.feed(*inp_it.next().unwrap());
             }
-            2 => { // multiply
-                let r1 = rr(program, op, pc, 1);
-                let r2 = rr(program, op, pc, 2);
-                let rv = ra(program, op, pc, 3);
-                program[rv] = r1 * r2;
-                pc += 4;
+            ProgramState::Output(val) => {
+                output.push(val);
             }
-            3 => { // input
-                let rv = ra(program, op, pc, 1);
-                program[rv] = *inp_it.next().unwrap();
-                pc += 2;
-            }
-            4 => { // output 
-                let r1 = rr(program, op, pc, 1);
-                output.push(r1);
-                pc += 2;
-            }
-            5 => { // jump-if-nonzero
-                let r1 = rr(program, op, pc, 1);
-                if r1 != 0 {
-                    pc = rr(program, op, pc, 2) as usize;
-                } else {
-                    pc += 3;
-                }
-            }
-            6 => { // jump-if-zero
-                let r1 = rr(program, op, pc, 1);
-                if r1 == 0 {
-                    pc = rr(program, op, pc, 2) as usize;
-                } else {
-                    pc += 3;
-                }
-            }
-            7 => { // less-than
-                let r1 = rr(program, op, pc, 1);
-                let r2 = rr(program, op, pc, 2);
-                let rv = ra(program, op, pc, 3);
-                program[rv] = if r1 < r2 { 1 } else { 0 };
-                pc += 4;
-            }
-            8 => { // equals
-                let r1 = rr(program, op, pc, 1);
-                let r2 = rr(program, op, pc, 2);
-                let rv = ra(program, op, pc, 3);
-                program[rv] = if r1 == r2 { 1 } else { 0 };
-                pc += 4;
-            }
-            _ => ()
+            ProgramState::Halted => {
+                program.clear();
+                program.splice(0..program.len(), machine.program);
+                return Ok(output);
+            },
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
