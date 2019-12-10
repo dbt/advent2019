@@ -26,15 +26,16 @@ impl error::Error for InvalidOpcode {
         None
     }
 }
+
 #[derive(Debug,Copy,Clone,PartialEq)]
-enum ProgramState {
+pub enum ProgramState {
     Ready,
     Input,
     Output(i32),
     Halted,
 }
 
-struct IntCode {
+pub struct IntCode {
     program: Vec<i32>,
     state: ProgramState,
     pc: usize,
@@ -159,8 +160,17 @@ impl IntCode {
         };
         Ok(self.state)
     }
+
     pub fn feed(&mut self, input: i32) {
         self.input = Some(input);
+    }
+
+    pub fn exec_multiple(&mut self) -> Result<ProgramState> {
+        let mut state = ProgramState::Ready;
+        while state == ProgramState::Ready {
+            state = self.exec_one()?;
+        }
+        Ok(self.state)
     }
 }
 

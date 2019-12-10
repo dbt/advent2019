@@ -6,6 +6,11 @@ pub fn part1() -> Result<String> {
     Ok(find_best(&prog, 0, start_avail())?.to_string())
 }
 
+pub fn part2() -> Result<String> {
+    let prog = utils::load_program("a07-input")?;
+    find_best_chain(&prog, &vec![], &start_chain()).map(|x| x.to_string())
+}
+
 fn start_avail() -> Vec<i32> {
     (0_i32..5_i32).collect::<Vec<i32>>()
 }
@@ -27,6 +32,63 @@ fn find_best(prog: &Vec<i32>, carry: i32, avail: Vec<i32>) -> Result<i32> {
         }
     }
     return Ok(best);
+}
+
+fn start_chain() -> Vec<i32> {
+    (5_i32..=9_i32).collect::<Vec<i32>>()
+}
+
+fn find_best_chain(prog: &Vec<i32>, codes: &Vec<i32>, avail: &Vec<i32>) -> Result<i32> {
+    if avail.len() == 0 {
+        return exec_chain(prog, codes);
+    }
+    let mut best = std::i32::MIN;
+    for opcode in avail {
+        let new_codes: Vec<i32> = codes.iter().chain(&[*opcode]).copied().collect();
+        let new_avail: Vec<i32> = avail.iter().copied().filter(|x| x != opcode).collect();
+        let val = find_best_chain(&prog, &new_codes, &new_avail)?;
+        if val > best {
+            best = val;
+        }
+    }
+    Ok(best)
+}
+
+fn exec_chain(prog: &Vec<i32>, codes: &Vec<i32>) -> Result<i32> {
+    let mut carry = Some(0);
+    let mut computers: Vec<computer::IntCode> = Vec::new();
+    for i in 0..codes.len() {
+        computers.push(computer::IntCode::new(prog));
+        computers[i].feed(codes[i]);
+        assert!(computers[i].exec_multiple()? == computer::ProgramState::Input);
+    }
+    loop {
+        for i in 0..codes.len() {
+            // println!("feeding {} into amp {}", carry.unwrap(), i);
+            computers[i].feed(carry.take().unwrap());
+            let mut blocked = false;
+            while !blocked {
+                match computers[i].exec_multiple()? {
+                    computer::ProgramState::Output(val) => {
+                        if carry.replace(val).is_some() {
+                            panic!("multiple values in flight!");
+                        }
+                        // println!("captured {} from amp {}", carry.unwrap(), i);
+                    },
+                    computer::ProgramState::Input => {
+                        blocked = true;
+                    },
+                    computer::ProgramState::Halted => {
+                        blocked = true;
+                        if i + 1 == codes.len() {
+                            return Ok(carry.unwrap());
+                        }
+                    },
+                    computer::ProgramState::Ready => (),
+                }
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -55,6 +117,30 @@ mod tests {
         ];
         for case in testcases {
             let best = find_best(&case.prog, 0, start_avail()).unwrap();
+            assert_eq!(best, case.expected);
+        }
+    }
+
+    #[test]
+    fn test_find_best_chain() {
+        struct Testcase {
+            prog: Vec<i32>,
+            expected: i32,
+        }
+        let testcases = vec![
+            Testcase{
+                prog: vec![3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5],
+                expected: 139629729,
+            },
+            Testcase{
+                prog: vec![3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,
+                    -5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,
+                    53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10],
+                expected: 18216,
+            }
+        ];
+        for case in testcases {
+            let best = find_best_chain(&case.prog, &vec![], &start_chain()).unwrap();
             assert_eq!(best, case.expected);
         }
     }
