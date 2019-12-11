@@ -1,5 +1,6 @@
 use std::error;
 use std::fmt;
+use std::collections::HashMap;
 
 use crate::utils::Result;
 
@@ -41,6 +42,8 @@ pub struct IntCode {
     program: Vec<Cell>,
     state: ProgramState,
     pc: usize,
+    base_rel: i64,
+    extended: HashMap<usize, Cell>,
     input: Option<Cell>,
 }
 
@@ -50,28 +53,43 @@ impl IntCode {
             program: program.iter().copied().collect(),
             state: ProgramState::Ready,
             pc: 0,
+            base_rel: 0,
+            extended: HashMap::new(),
             input: None,
         };
     }
 
     fn read(&self, addr: usize) -> Cell {
-        return self.program[addr];
+        if self.program.len() <= addr {
+            *self.extended.get(&addr).unwrap_or(&0)
+        } else {
+            self.program[addr]
+        }
     }
 
     fn write(&mut self, addr: usize, val: Cell) {
-        self.program[addr] = val;
+        if addr >= self.program.len() {
+            self.extended.insert(addr, val);
+        } else {
+            self.program[addr] = val;
+        }
     }
 
     fn reg(&self, nth: usize, addr: bool) -> Cell {
         let op = self.read(self.pc);
-        let val = self.read(self.pc + nth);
+        let mut val = self.read(self.pc + nth);
         let mask = (op as u32) / (10_u32.pow(nth as u32 + 1)) % 10;
-        assert!(!addr || mask == 0, "addr mode set but mask is non-zero");
-        if !addr && mask == 0 {
-            self.read(val as usize)
-        } else {
-            val
+        if mask == 1 {
+            assert!(!addr, "addr mode set but mask read mode is immediate");
+            return val;
         }
+        if mask == 2 {
+            val += self.base_rel as Cell;
+        }
+        if addr {
+            return val;
+        }
+        return self.read(val as usize);
     }
 
     fn rr(&self, nth: usize) -> Cell {
@@ -89,7 +107,7 @@ impl IntCode {
             self.state = ProgramState::Halted;
             return Ok(self.state);
         }
-        if opcode < 1 || opcode > 8 {
+        if opcode < 1 || opcode > 9 {
             Err(InvalidOpcode::new(opcode as usize))?;
         }
         self.state = match opcode {
@@ -166,6 +184,13 @@ impl IntCode {
                 self.pc += 4;
                 ProgramState::Ready
             }
+            9 => {
+                // set-relative-base
+                let r1 = self.rr(1) as i64;
+                self.base_rel += r1;
+                self.pc += 2;
+                ProgramState::Ready
+            }
             _ => ProgramState::Halted,
         };
         Ok(self.state)
@@ -181,6 +206,29 @@ impl IntCode {
             state = self.exec_one()?;
         }
         Ok(self.state)
+    }
+
+    pub fn exec_many(&mut self, inputs: &Vec<Cell>) -> Result<(ProgramState, Vec<Cell>)> {
+        let mut output = vec![];
+        let mut inp_it = inputs.iter();
+        loop {
+            match self.exec_multiple()? {
+                ProgramState::Input => {
+                    if let Some(x) = inp_it.next() {
+                        self.feed(*x);
+                    } else {
+                        return Ok((self.state, output));
+                    }
+                }
+                ProgramState::Output(x) => {
+                    output.push(x);
+                }
+                ProgramState::Halted => {
+                    return Ok((self.state, output));
+                }
+                _ => ()
+            }
+        }
     }
 }
 

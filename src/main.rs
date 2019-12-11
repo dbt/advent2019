@@ -8,6 +8,7 @@ use advent2019::day05;
 use advent2019::day06;
 use advent2019::day07;
 use advent2019::day08;
+use advent2019::day09;
 use advent2019::utils::Result;
 
 fn main() -> Result<()> {
@@ -27,6 +28,8 @@ fn main() -> Result<()> {
     println!("day  7 part 2: {}", day07::part2()?);
     println!("day  8 part 1: {}", day08::part1()?);
     println!("day  8 part 2: \n{}", day08::part2()?);
+    println!("day  9 part 1: {}", day09::part1()?);
+    println!("day  9 part 2: {}", day09::part2()?);
 
     Ok(())
 }
