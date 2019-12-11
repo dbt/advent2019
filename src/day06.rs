@@ -1,4 +1,3 @@
-
 use crate::utils::Result;
 use std::collections::HashMap;
 use std::fs;
@@ -51,14 +50,14 @@ pub fn part2() -> Result<String> {
         if let Some(you) = ynext {
             ydist.insert(you, counter);
             if let Some(x) = sdist.get(you) {
-                return Ok((x+counter).to_string());
+                return Ok((x + counter).to_string());
             }
             ynext = parents.get(you);
         }
         if let Some(san) = snext {
             sdist.insert(san, counter);
             if let Some(x) = ydist.get(san) {
-                return Ok((x+counter).to_string());
+                return Ok((x + counter).to_string());
             }
             snext = parents.get(san);
         }

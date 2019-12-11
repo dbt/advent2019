@@ -1,7 +1,5 @@
-
 extern crate advent2019;
 
-use advent2019::utils::Result;
 use advent2019::day01;
 use advent2019::day02;
 use advent2019::day03;
@@ -10,6 +8,7 @@ use advent2019::day05;
 use advent2019::day06;
 use advent2019::day07;
 use advent2019::day08;
+use advent2019::utils::Result;
 
 fn main() -> Result<()> {
     println!("day  1 part 1: {}", day01::part1()?);

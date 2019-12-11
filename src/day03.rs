@@ -1,21 +1,19 @@
-
-
-use std::fmt;
+use std::collections::{hash_map::Entry, HashMap, HashSet};
 use std::error;
-use std::collections::{HashSet,HashMap,hash_map::Entry};
+use std::fmt;
 
-use crate::utils::Result;
 use crate::utils::read_lines;
+use crate::utils::Result;
 
-#[derive(Debug,Copy,Clone,Eq,PartialEq,Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 struct Point {
     x: i32,
-    y: i32
+    y: i32,
 }
 
 impl Point {
     pub fn new(x: i32, y: i32) -> Point {
-        return Point{x: x, y: y};
+        return Point { x: x, y: y };
     }
     pub fn dist(&self) -> i32 {
         self.x.abs() + self.y.abs()
@@ -24,14 +22,14 @@ impl Point {
 
 impl std::ops::Add for Point {
     type Output = Point;
-    fn add (self, rhs: Point) -> Point {
+    fn add(self, rhs: Point) -> Point {
         return Point::new(self.x + rhs.x, self.y + rhs.y);
     }
 }
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 struct InvalidDirection {
-    c: char
+    c: char,
 }
 
 impl fmt::Display for InvalidDirection {
@@ -47,7 +45,6 @@ impl error::Error for InvalidDirection {
     }
 }
 
-
 fn points(path: &String) -> Result<Vec<Point>> {
     let mut out: Vec<Point> = Vec::new();
     let vecs = path.trim().split(",");
@@ -59,7 +56,7 @@ fn points(path: &String) -> Result<Vec<Point>> {
             'D' => Ok(Point::new(0, 1)),
             'L' => Ok(Point::new(-1, 0)),
             'R' => Ok(Point::new(1, 0)),
-            c => Err(InvalidDirection{c})
+            c => Err(InvalidDirection { c }),
         };
         let delta = delt?;
         let dist = seg[1..].parse::<i32>()?;
@@ -133,14 +130,19 @@ mod tests {
         #[derive(Debug)]
         struct Testcase {
             input: String,
-            expected: Vec<Point>
+            expected: Vec<Point>,
         }
-        let testcases = vec![
-            Testcase{
-                input: "R2,D2,L1,U1".to_string(), 
-                expected: vec![Point::new(1, 0), Point::new(2, 0), Point::new(2, 1), Point::new(2, 2), Point::new(1, 2), Point::new(1, 1)]
-            }
-        ];
+        let testcases = vec![Testcase {
+            input: "R2,D2,L1,U1".to_string(),
+            expected: vec![
+                Point::new(1, 0),
+                Point::new(2, 0),
+                Point::new(2, 1),
+                Point::new(2, 2),
+                Point::new(1, 2),
+                Point::new(1, 1),
+            ],
+        }];
         for case in testcases.iter() {
             let result = points(&case.input);
             assert_eq!(result.unwrap(), case.expected);
@@ -155,31 +157,31 @@ mod tests {
             expected1: i32,
             expected2: usize,
         }
-        let testcases = vec![Testcase{
-            input1: "R8,U5,L5,D3",
-            input2: "U7,R6,D4,L4",
-            expected1: 6,
-            expected2: 30,
-        },
-        Testcase{
-            input1: "R75,D30,R83,U83,L12,D49,R71,U7,L72",
-            input2: "U62,R66,U55,R34,D71,R55,D58,R83",
-            expected1: 159,
-            expected2: 610,
-        },
-        Testcase{
-            input1: "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51",
-            input2: "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7",
-            expected1: 135,
-            expected2: 410,
-        }
+        let testcases = vec![
+            Testcase {
+                input1: "R8,U5,L5,D3",
+                input2: "U7,R6,D4,L4",
+                expected1: 6,
+                expected2: 30,
+            },
+            Testcase {
+                input1: "R75,D30,R83,U83,L12,D49,R71,U7,L72",
+                input2: "U62,R66,U55,R34,D71,R55,D58,R83",
+                expected1: 159,
+                expected2: 610,
+            },
+            Testcase {
+                input1: "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51",
+                input2: "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7",
+                expected1: 135,
+                expected2: 410,
+            },
         ];
         for case in testcases.iter() {
             let result = advent03a_dist(case.input1.to_string(), case.input2.to_string());
             assert_eq!(result.unwrap(), case.expected1);
             let resb = advent03b_dist(case.input1.to_string(), case.input2.to_string());
             assert_eq!(resb.unwrap(), case.expected2);
-
         }
     }
 }

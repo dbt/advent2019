@@ -40,22 +40,25 @@ pub fn part2() -> Result<String> {
             }
         }
     }
-    let printable: Vec<char> =
-        output.iter().map(|x| match x {
-        '0' => ' ',
-        '1' => '█',
-        _ => '?',
-    }).collect();
-    Ok(printable.chunks(25).map(|x| x.iter().collect::<String>()).collect::<Vec<String>>().join("\n"))
+    let printable: Vec<char> = output
+        .iter()
+        .map(|x| match x {
+            '0' => ' ',
+            '1' => '█',
+            _ => '?',
+        })
+        .collect();
+    Ok(printable
+        .chunks(25)
+        .map(|x| x.iter().collect::<String>())
+        .collect::<Vec<String>>()
+        .join("\n"))
 }
-
-
 
 #[cfg(test)]
 mod tests {
-//    use super::*;
+    //    use super::*;
 
     #[test]
-    fn test_() {
-    }
+    fn test_() {}
 }

@@ -1,8 +1,7 @@
-
-use crate::utils::{Result, read_lines};
+use crate::utils::{read_lines, Result};
 
 fn advent01a_fuel(mass: i32) -> i32 {
-    let val = (mass/3)-2;
+    let val = (mass / 3) - 2;
     if val <= 0 {
         return 0;
     }

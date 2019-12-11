@@ -1,9 +1,8 @@
-
 extern crate num_bigint;
 extern crate num_traits;
 
-pub mod utils;
 pub mod computer;
+pub mod utils;
 
 pub mod day01;
 pub mod day02;

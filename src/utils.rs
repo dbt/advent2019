@@ -5,15 +5,19 @@ use std::path::Path;
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 pub fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where P: AsRef<Path>, {
+where
+    P: AsRef<Path>,
+{
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines())
 }
 
-pub fn load_program<P>(filename: P) -> Result<Vec<i32>> 
-where P: AsRef<Path>, 
+pub fn load_program<P>(filename: P) -> Result<Vec<i32>>
+where
+    P: AsRef<Path>,
 {
     let text = fs::read_to_string(filename)?;
-    let parsed: std::result::Result<Vec<_>, _> = text.trim().split(',').map(|s| s.parse::<i32>()).collect();
+    let parsed: std::result::Result<Vec<_>, _> =
+        text.trim().split(',').map(|s| s.parse::<i32>()).collect();
     Ok(parsed?)
 }

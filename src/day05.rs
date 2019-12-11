@@ -1,4 +1,3 @@
-
 use crate::computer;
 use crate::utils::{self, Result};
 
@@ -12,8 +11,9 @@ fn diagnostic(subsystem: i32) -> Result<String> {
             Err("no outputs")?;
         }
         return Ok("0".to_string());
-    } if val.len() == 1 {
-        return Ok(val[0].to_string())
+    }
+    if val.len() == 1 {
+        return Ok(val[0].to_string());
     } else {
         Err(format!("some diagnostics failed: {:?}", outputs))?
     }
@@ -26,4 +26,3 @@ pub fn part1() -> Result<String> {
 pub fn part2() -> Result<String> {
     return diagnostic(5);
 }
-

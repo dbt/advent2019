@@ -1,6 +1,5 @@
-
-use crate::utils::{self, Result};
 use crate::computer::exec;
+use crate::utils::{self, Result};
 
 fn advent02_prog() -> Result<Vec<i32>> {
     utils::load_program("a02-input")
@@ -23,7 +22,7 @@ pub fn part2() -> Result<String> {
             copy[2] = verb;
             exec(&mut copy, &Vec::new())?;
             if copy[0] == 19690720 {
-                return Ok((100*noun+verb).to_string());
+                return Ok((100 * noun + verb).to_string());
             }
         }
     }

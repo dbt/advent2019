@@ -3,14 +3,14 @@ use std::fmt;
 
 use crate::utils::Result;
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct InvalidOpcode {
-    opcode: i32
+    opcode: i32,
 }
 
 impl InvalidOpcode {
     pub fn new(opcode: i32) -> InvalidOpcode {
-        InvalidOpcode{opcode}
+        InvalidOpcode { opcode }
     }
 }
 
@@ -27,7 +27,7 @@ impl error::Error for InvalidOpcode {
     }
 }
 
-#[derive(Debug,Copy,Clone,PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ProgramState {
     Ready,
     Input,
@@ -63,7 +63,7 @@ impl IntCode {
     fn reg(&self, nth: usize, addr: bool) -> i32 {
         let op = self.read(self.pc);
         let val = self.read(self.pc + nth);
-        let mask = (op as u32) / (10_u32.pow(nth as u32+1)) % 10;
+        let mask = (op as u32) / (10_u32.pow(nth as u32 + 1)) % 10;
         assert!(!addr || mask == 0, "addr mode set but mask is non-zero");
         if !addr && mask == 0 {
             self.read(val as usize)
@@ -91,23 +91,26 @@ impl IntCode {
             Err(InvalidOpcode::new(opcode))?;
         }
         self.state = match opcode {
-            1 => { // add
+            1 => {
+                // add
                 let r1 = self.rr(1);
                 let r2 = self.rr(2);
                 let rv = self.ra(3);
                 self.write(rv, r1 + r2);
                 self.pc += 4;
                 ProgramState::Ready
-            },
-            2 => {// multiply 
+            }
+            2 => {
+                // multiply
                 let r1 = self.rr(1);
                 let r2 = self.rr(2);
                 let rv = self.ra(3);
                 self.write(rv, r1 * r2);
                 self.pc += 4;
                 ProgramState::Ready
-            },
-            3 => { // input
+            }
+            3 => {
+                // input
                 if let Some(val) = self.input.take() {
                     let rv = self.ra(1);
                     self.write(rv, val);
@@ -116,13 +119,15 @@ impl IntCode {
                 } else {
                     ProgramState::Input
                 }
-            },
-            4 => { // output
+            }
+            4 => {
+                // output
                 let r1 = self.rr(1);
                 self.pc += 2;
                 ProgramState::Output(r1)
-            },
-            5 => { // jump-if-nonzero
+            }
+            5 => {
+                // jump-if-nonzero
                 let r1 = self.rr(1);
                 if r1 != 0 {
                     self.pc = self.rr(2) as usize;
@@ -130,8 +135,9 @@ impl IntCode {
                     self.pc += 3;
                 }
                 ProgramState::Ready
-            },
-            6 => { // jump-if-zero
+            }
+            6 => {
+                // jump-if-zero
                 let r1 = self.rr(1);
                 if r1 == 0 {
                     self.pc = self.rr(2) as usize;
@@ -139,24 +145,26 @@ impl IntCode {
                     self.pc += 3;
                 }
                 ProgramState::Ready
-            },
-            7 => { // less-than
+            }
+            7 => {
+                // less-than
                 let r1 = self.rr(1);
                 let r2 = self.rr(2);
                 let rv = self.ra(3);
                 self.write(rv, if r1 < r2 { 1 } else { 0 });
                 self.pc += 4;
                 ProgramState::Ready
-            },
-            8 => { // equals
+            }
+            8 => {
+                // equals
                 let r1 = self.rr(1);
                 let r2 = self.rr(2);
                 let rv = self.ra(3);
                 self.write(rv, if r1 == r2 { 1 } else { 0 });
                 self.pc += 4;
                 ProgramState::Ready
-            },
-            _ => ProgramState::Halted
+            }
+            _ => ProgramState::Halted,
         };
         Ok(self.state)
     }
@@ -174,7 +182,7 @@ impl IntCode {
     }
 }
 
-pub fn exec(program: &mut Vec<i32>, inputs: &Vec<i32>) ->Result<Vec<i32>> {
+pub fn exec(program: &mut Vec<i32>, inputs: &Vec<i32>) -> Result<Vec<i32>> {
     let mut machine = IntCode::new(program);
     let mut output: Vec<i32> = Vec::new();
     let mut inp_it = inputs.iter();
@@ -191,7 +199,7 @@ pub fn exec(program: &mut Vec<i32>, inputs: &Vec<i32>) ->Result<Vec<i32>> {
                 program.clear();
                 program.splice(0..program.len(), machine.program);
                 return Ok(output);
-            },
+            }
         }
     }
 }
@@ -205,28 +213,29 @@ mod tests {
         #[derive(Debug)]
         struct Testcase {
             input: Vec<i32>,
-            expected: Vec<i32>
+            expected: Vec<i32>,
         }
         let testcases: [Testcase; 5] = [
-            Testcase{
-                input:    vec![1,   9,10,3, 2,3,11,0,99,30,40,50], 
-                expected: vec![3500,9,10,70,2,3,11,0,99,30,40,50]},
-            Testcase{
-                input:    vec![1,0,0,0,99], 
-                expected: vec![2,0,0,0,99]
+            Testcase {
+                input: vec![1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50],
+                expected: vec![3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50],
             },
-            Testcase{
-                input:    vec![2,3,0,3,99],
-                expected: vec![2,3,0,6,99]
+            Testcase {
+                input: vec![1, 0, 0, 0, 99],
+                expected: vec![2, 0, 0, 0, 99],
             },
-            Testcase{
-                input:    vec![2,4,4,5,99,0],
-                expected: vec![2,4,4,5,99,9801]
+            Testcase {
+                input: vec![2, 3, 0, 3, 99],
+                expected: vec![2, 3, 0, 6, 99],
             },
-            Testcase{
-                input:    vec![1, 1,1,4,99,5,6,0,99],
-                expected: vec![30,1,1,4,2, 5,6,0,99],
-            }
+            Testcase {
+                input: vec![2, 4, 4, 5, 99, 0],
+                expected: vec![2, 4, 4, 5, 99, 9801],
+            },
+            Testcase {
+                input: vec![1, 1, 1, 4, 99, 5, 6, 0, 99],
+                expected: vec![30, 1, 1, 4, 2, 5, 6, 0, 99],
+            },
         ];
         for case in testcases.iter() {
             let mut program = case.input.clone();
@@ -241,33 +250,37 @@ mod tests {
         struct Testcase {
             program: Vec<i32>,
             input: Vec<i32>,
-            output: Vec<i32>
+            output: Vec<i32>,
         }
         let testcases = vec![
-            Testcase{
+            Testcase {
                 program: vec![1101, 100, -1, 4, 0],
-                input:   vec![],
-                output:  vec![],
+                input: vec![],
+                output: vec![],
             },
-            Testcase{
-                program: vec![3,0,4,0,99],
-                input:   vec![777],
-                output:  vec![777],
+            Testcase {
+                program: vec![3, 0, 4, 0, 99],
+                input: vec![777],
+                output: vec![777],
             },
-            Testcase{
-                program: vec![3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99],
-                input:   vec![7],
-                output:  vec![999],
+            Testcase {
+                program: vec![
+                    3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0,
+                    36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46,
+                    1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99,
+                ],
+                input: vec![7],
+                output: vec![999],
             },
-            Testcase{
-                program: vec![3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9],
-                input:   vec![0],
-                output:  vec![0],
+            Testcase {
+                program: vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9],
+                input: vec![0],
+                output: vec![0],
             },
-            Testcase{
-                program: vec![3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9],
-                input:   vec![-5],
-                output:  vec![1],
+            Testcase {
+                program: vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9],
+                input: vec![-5],
+                output: vec![1],
             },
         ];
         for case in testcases.iter() {
