@@ -3,13 +3,15 @@ use std::fmt;
 
 use crate::utils::Result;
 
+pub type Cell = i128;
+
 #[derive(Debug, Clone)]
 pub struct InvalidOpcode {
-    opcode: i32,
+    opcode: usize,
 }
 
 impl InvalidOpcode {
-    pub fn new(opcode: i32) -> InvalidOpcode {
+    pub fn new(opcode: usize) -> InvalidOpcode {
         InvalidOpcode { opcode }
     }
 }
@@ -31,19 +33,19 @@ impl error::Error for InvalidOpcode {
 pub enum ProgramState {
     Ready,
     Input,
-    Output(i32),
+    Output(Cell),
     Halted,
 }
 
 pub struct IntCode {
-    program: Vec<i32>,
+    program: Vec<Cell>,
     state: ProgramState,
     pc: usize,
-    input: Option<i32>,
+    input: Option<Cell>,
 }
 
 impl IntCode {
-    pub fn new(program: &Vec<i32>) -> IntCode {
+    pub fn new(program: &Vec<Cell>) -> IntCode {
         return IntCode {
             program: program.iter().copied().collect(),
             state: ProgramState::Ready,
@@ -52,15 +54,15 @@ impl IntCode {
         };
     }
 
-    fn read(&self, addr: usize) -> i32 {
+    fn read(&self, addr: usize) -> Cell {
         return self.program[addr];
     }
 
-    fn write(&mut self, addr: usize, val: i32) {
+    fn write(&mut self, addr: usize, val: Cell) {
         self.program[addr] = val;
     }
 
-    fn reg(&self, nth: usize, addr: bool) -> i32 {
+    fn reg(&self, nth: usize, addr: bool) -> Cell {
         let op = self.read(self.pc);
         let val = self.read(self.pc + nth);
         let mask = (op as u32) / (10_u32.pow(nth as u32 + 1)) % 10;
@@ -72,7 +74,7 @@ impl IntCode {
         }
     }
 
-    fn rr(&self, nth: usize) -> i32 {
+    fn rr(&self, nth: usize) -> Cell {
         return self.reg(nth, false);
     }
 
@@ -88,7 +90,7 @@ impl IntCode {
             return Ok(self.state);
         }
         if opcode < 1 || opcode > 8 {
-            Err(InvalidOpcode::new(opcode))?;
+            Err(InvalidOpcode::new(opcode as usize))?;
         }
         self.state = match opcode {
             1 => {
@@ -169,7 +171,7 @@ impl IntCode {
         Ok(self.state)
     }
 
-    pub fn feed(&mut self, input: i32) {
+    pub fn feed(&mut self, input: Cell) {
         self.input = Some(input);
     }
 
@@ -183,21 +185,23 @@ impl IntCode {
 }
 
 pub fn exec(program: &mut Vec<i32>, inputs: &Vec<i32>) -> Result<Vec<i32>> {
-    let mut machine = IntCode::new(program);
+    let prog = program.iter().map(|x| *x as Cell).collect();
+    let mut machine = IntCode::new(&prog);
     let mut output: Vec<i32> = Vec::new();
     let mut inp_it = inputs.iter();
     loop {
-        match machine.exec_one()? {
+        match machine.exec_multiple()? {
             ProgramState::Ready => (),
             ProgramState::Input => {
-                machine.feed(*inp_it.next().unwrap());
+                machine.feed(*inp_it.next().unwrap() as Cell);
             }
             ProgramState::Output(val) => {
-                output.push(val);
+                output.push(val as i32);
             }
             ProgramState::Halted => {
-                program.clear();
-                program.splice(0..program.len(), machine.program);
+                for i in 0..program.len() {
+                    program[i] = machine.program[i] as i32;
+                }
                 return Ok(output);
             }
         }

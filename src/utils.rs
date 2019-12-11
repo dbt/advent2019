@@ -21,3 +21,13 @@ where
         text.trim().split(',').map(|s| s.parse::<i32>()).collect();
     Ok(parsed?)
 }
+
+pub fn load_program_cell<P>(filename: P) -> Result<Vec<i128>>
+where
+    P: AsRef<Path>,
+{
+    let text = fs::read_to_string(filename)?;
+    let parsed: std::result::Result<Vec<_>, _> =
+        text.trim().split(',').map(|s| s.parse::<i128>()).collect();
+    Ok(parsed?)
+}

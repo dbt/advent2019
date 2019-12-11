@@ -1,4 +1,4 @@
-use crate::computer;
+use crate::computer::{self, Cell};
 use crate::utils::{self, Result};
 
 pub fn part1() -> Result<String> {
@@ -7,12 +7,12 @@ pub fn part1() -> Result<String> {
 }
 
 pub fn part2() -> Result<String> {
-    let prog = utils::load_program("a07-input")?;
+    let prog = utils::load_program_cell("a07-input")?;
     find_best_chain(&prog, &vec![], &start_chain()).map(|x| x.to_string())
 }
 
 fn start_avail() -> Vec<i32> {
-    (0_i32..5_i32).collect::<Vec<i32>>()
+    (0..5).collect::<Vec<i32>>()
 }
 
 fn find_best(prog: &Vec<i32>, carry: i32, avail: Vec<i32>) -> Result<i32> {
@@ -22,6 +22,7 @@ fn find_best(prog: &Vec<i32>, carry: i32, avail: Vec<i32>) -> Result<i32> {
     let mut best = std::i32::MIN;
     for opcode in &avail {
         let inputs = vec![*opcode, carry];
+
         let outputs = computer::exec(&mut prog.clone(), &inputs)?;
         if outputs.len() != 1 {
             Err(format!("Expected 1 result but got {}", outputs.len()))?;
@@ -38,18 +39,18 @@ fn find_best(prog: &Vec<i32>, carry: i32, avail: Vec<i32>) -> Result<i32> {
     return Ok(best);
 }
 
-fn start_chain() -> Vec<i32> {
-    (5_i32..=9_i32).collect::<Vec<i32>>()
+fn start_chain() -> Vec<Cell> {
+    (5..=9).collect::<Vec<Cell>>()
 }
 
-fn find_best_chain(prog: &Vec<i32>, codes: &Vec<i32>, avail: &Vec<i32>) -> Result<i32> {
+fn find_best_chain(prog: &Vec<Cell>, codes: &Vec<Cell>, avail: &Vec<Cell>) -> Result<Cell> {
     if avail.len() == 0 {
         return exec_chain(prog, codes);
     }
-    let mut best = std::i32::MIN;
+    let mut best = std::i32::MIN as Cell;
     for opcode in avail {
-        let new_codes: Vec<i32> = codes.iter().chain(&[*opcode]).copied().collect();
-        let new_avail: Vec<i32> = avail.iter().copied().filter(|x| x != opcode).collect();
+        let new_codes: Vec<Cell> = codes.iter().chain(&[*opcode]).copied().collect();
+        let new_avail: Vec<Cell> = avail.iter().copied().filter(|x| x != opcode).collect();
         let val = find_best_chain(&prog, &new_codes, &new_avail)?;
         if val > best {
             best = val;
@@ -58,7 +59,7 @@ fn find_best_chain(prog: &Vec<i32>, codes: &Vec<i32>, avail: &Vec<i32>) -> Resul
     Ok(best)
 }
 
-fn exec_chain(prog: &Vec<i32>, codes: &Vec<i32>) -> Result<i32> {
+fn exec_chain(prog: &Vec<Cell>, codes: &Vec<Cell>) -> Result<Cell> {
     let mut carry = Some(0);
     let mut computers: Vec<computer::IntCode> = Vec::new();
     for i in 0..codes.len() {
@@ -136,8 +137,8 @@ mod tests {
     #[test]
     fn test_find_best_chain() {
         struct Testcase {
-            prog: Vec<i32>,
-            expected: i32,
+            prog: Vec<Cell>,
+            expected: Cell,
         }
         let testcases = vec![
             Testcase {

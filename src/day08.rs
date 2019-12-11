@@ -54,11 +54,3 @@ pub fn part2() -> Result<String> {
         .collect::<Vec<String>>()
         .join("\n"))
 }
-
-#[cfg(test)]
-mod tests {
-    //    use super::*;
-
-    #[test]
-    fn test_() {}
-}
