@@ -7,3 +7,6 @@ authors = ["David Terrell <dbt@meat.net>"]
 debug = true
 
 [dependencies]
+num-bigint = "0.2"
+num-traits = "0.2"
+
