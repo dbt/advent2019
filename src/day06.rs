@@ -1,9 +1,25 @@
-use crate::utils::Result;
+use adventools::prelude::*;
+use anyhow::anyhow;
 use std::collections::HashMap;
 use std::fs;
 
+pub struct D {}
+impl Day for D {
+    fn number(&self) -> u8 {
+        6
+    }
+    fn part01(&self) -> Result<()> {
+        println!("{}", part1()?);
+        Ok(())
+    }
+    fn part02(&self) -> Result<()> {
+        println!("{}", part2()?);
+        Ok(())
+    }
+}
+
 pub fn part1() -> Result<String> {
-    let all = fs::read_to_string("a06-input")?;
+    let all = fs::read_to_string("input06.txt")?;
     let mut queue = vec!["COM"];
     let mut next_queue: Vec<&str> = Vec::new();
     let mut dist = 0;
@@ -15,8 +31,8 @@ pub fn part1() -> Result<String> {
                 break;
             }
             let mut spl = line.split(")");
-            let inner = spl.next().ok_or(format!("invalid {}", line))?;
-            let outer = spl.next().ok_or(format!("invalid {}", line))?;
+            let inner = spl.next().unwrap();
+            let outer = spl.next().unwrap();
             if queue.contains(&inner) {
                 total += dist;
                 next_queue.push(outer);
@@ -29,7 +45,7 @@ pub fn part1() -> Result<String> {
 }
 
 pub fn part2() -> Result<String> {
-    let all = fs::read_to_string("a06-input")?;
+    let all = fs::read_to_string("input06.txt")?;
     let all_lines = all.split("\n");
     let mut parents: HashMap<&str, &str> = HashMap::new();
     for line in all_lines {
@@ -37,8 +53,8 @@ pub fn part2() -> Result<String> {
             break;
         }
         let mut spl = line.split(")");
-        let inner = spl.next().ok_or(format!("invalid {}", line))?;
-        let outer = spl.next().ok_or(format!("invalid {}", line))?;
+        let inner = spl.next().unwrap();
+        let outer = spl.next().unwrap();
         parents.insert(outer, inner);
     }
     let mut counter = -1;
@@ -63,5 +79,5 @@ pub fn part2() -> Result<String> {
         }
         counter += 1;
     }
-    Err("no matches found")?
+    Err(anyhow!("no matches found"))
 }

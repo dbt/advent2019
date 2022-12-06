@@ -1,8 +1,24 @@
 use crate::computer::exec;
 use crate::utils::{self, Result};
+use adventools::prelude::*;
 
 fn advent02_prog() -> Result<Vec<i32>> {
-    utils::load_program("a02-input")
+    utils::load_program("input02.txt")
+}
+
+pub struct D {}
+impl Day for D {
+    fn number(&self) -> u8 {
+        2
+    }
+    fn part01(&self) -> Result<()> {
+        println!("{}", part1()?);
+        Ok(())
+    }
+    fn part02(&self) -> Result<()> {
+        println!("{}", part2()?);
+        Ok(())
+    }
 }
 
 pub fn part1() -> Result<String> {

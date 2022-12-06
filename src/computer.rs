@@ -1,6 +1,6 @@
+use std::collections::HashMap;
 use std::error;
 use std::fmt;
-use std::collections::HashMap;
 
 use crate::utils::Result;
 
@@ -226,7 +226,7 @@ impl IntCode {
                 ProgramState::Halted => {
                     return Ok((self.state, output));
                 }
-                _ => ()
+                _ => (),
             }
         }
     }

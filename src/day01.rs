@@ -1,4 +1,4 @@
-use crate::utils::{read_lines, Result};
+use adventools::prelude::*;
 
 fn advent01a_fuel(mass: i32) -> i32 {
     let val = (mass / 3) - 2;
@@ -17,21 +17,37 @@ fn advent01b_fuel(mass: i32) -> i32 {
     return val + addl;
 }
 
-pub fn part1() -> Result<String> {
-    let lines = read_lines("a01-input")?;
+pub struct D {}
+
+impl Day for D {
+    fn number(&self) -> u8 {
+        1
+    }
+    fn part01(&self) -> Result<()> {
+        println!("{}", part1()?);
+        Ok(())
+    }
+    fn part02(&self) -> Result<()> {
+        println!("{}", part2()?);
+        Ok(())
+    }
+}
+
+fn part1() -> Result<String> {
+    let lines = read_lines("input01.txt")?;
     let mut total: i32 = 0;
     for line in lines {
-        let val = line?.parse::<i32>()?;
+        let val = line.parse::<i32>()?;
         total += advent01a_fuel(val);
     }
     Ok(total.to_string())
 }
 
-pub fn part2() -> Result<String> {
-    let lines = read_lines("a01-input")?;
+fn part2() -> Result<String> {
+    let lines = read_lines("input01.txt")?;
     let mut total: i32 = 0;
     for line in lines {
-        let val = line?.parse::<i32>()?;
+        let val = line.parse::<i32>()?;
         total += advent01b_fuel(val);
     }
     Ok(total.to_string())

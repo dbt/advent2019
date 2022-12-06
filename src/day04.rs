@@ -1,4 +1,5 @@
 use crate::utils::Result;
+use adventools::prelude::*;
 
 fn unpack(i: i32) -> (i32, i32, i32, i32, i32, i32) {
     (
@@ -31,6 +32,21 @@ fn advent04b_test(a: i32, b: i32, c: i32, d: i32, e: i32, f: i32) -> bool {
             || (c == d && b != c && d != e)
             || (d == e && c != d && e != f)
             || (e == f && d != e))
+}
+
+pub struct D {}
+impl Day for D {
+    fn number(&self) -> u8 {
+        4
+    }
+    fn part01(&self) -> Result<()> {
+        println!("{}", part1()?);
+        Ok(())
+    }
+    fn part02(&self) -> Result<()> {
+        println!("{}", part2()?);
+        Ok(())
+    }
 }
 
 pub fn part1() -> Result<String> {

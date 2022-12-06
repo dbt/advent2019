@@ -9,4 +9,5 @@ debug = true
 [dependencies]
 num-bigint = "0.2"
 num-traits = "0.2"
-
+adventools = { path = "../adventools"}
+anyhow = "1"

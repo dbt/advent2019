@@ -4,6 +4,23 @@ use std::fmt;
 
 use crate::utils::read_lines;
 use crate::utils::Result;
+use adventools::prelude::*;
+use anyhow::anyhow;
+
+pub struct D {}
+impl Day for D {
+    fn number(&self) -> u8 {
+        3
+    }
+    fn part01(&self) -> Result<()> {
+        println!("{}", part1()?);
+        Ok(())
+    }
+    fn part02(&self) -> Result<()> {
+        println!("{}", part2()?);
+        Ok(())
+    }
+}
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 struct Point {
@@ -84,8 +101,7 @@ fn advent03a_dist(path1: String, path2: String) -> Result<i32> {
         }
         return Ok(h.dist());
     }
-    Err("not found")?;
-    Ok(0)
+    Err(anyhow!("not found"))
 }
 
 fn advent03b_dist(path1: String, path2: String) -> Result<usize> {
@@ -108,16 +124,16 @@ fn advent03b_dist(path1: String, path2: String) -> Result<usize> {
 }
 
 pub fn part1() -> Result<String> {
-    let mut lines = read_lines("a03-input")?;
-    let input1 = lines.next().unwrap()?;
-    let input2 = lines.next().unwrap()?;
+    let lines = read_lines("input03.txt")?;
+    let input1 = lines[0].to_string();
+    let input2 = lines[1].to_string();
     advent03a_dist(input1, input2).map(|x| x.to_string())
 }
 
 pub fn part2() -> Result<String> {
-    let mut lines = read_lines("a03-input")?;
-    let input1 = lines.next().unwrap()?;
-    let input2 = lines.next().unwrap()?;
+    let  lines = read_lines("input03.txt")?;
+    let input1 = lines[0].to_string();
+    let input2 = lines[1].to_string();
     advent03b_dist(input1, input2).map(|x| x.to_string())
 }
 

@@ -1,4 +1,19 @@
-use crate::utils::Result;
+use adventools::prelude::*;
+
+pub struct D {}
+impl Day for D {
+    fn number(&self) -> u8 {
+        8
+    }
+    fn part01(&self) -> Result<()> {
+        println!("{}", part1()?);
+        Ok(())
+    }
+    fn part02(&self) -> Result<()> {
+        println!("\n{}", part2()?);
+        Ok(())
+    }
+}
 
 use std::fs;
 
@@ -8,7 +23,7 @@ fn count_if(a: &[u8], m: char) -> usize {
 }
 
 pub fn part1() -> Result<String> {
-    let data = fs::read_to_string("a08-input")?;
+    let data = fs::read_to_string("input08.txt")?;
     // 25x6
     let layers = data.as_bytes().chunks(150);
     let mut count = 150;
@@ -29,7 +44,7 @@ pub fn part1() -> Result<String> {
 }
 
 pub fn part2() -> Result<String> {
-    let data = fs::read_to_string("a08-input")?;
+    let data = fs::read_to_string("input08.txt")?;
     // 25x6
     let layers = data.trim().as_bytes().chunks(150);
     let mut output = vec!['2'; 150];

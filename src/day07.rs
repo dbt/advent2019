@@ -1,13 +1,30 @@
 use crate::computer::{self, Cell};
-use crate::utils::{self, Result};
+use crate::utils::{self};
+use adventools::prelude::*;
+use anyhow::anyhow;
+
+pub struct D {}
+impl Day for D {
+    fn number(&self) -> u8 {
+        7
+    }
+    fn part01(&self) -> Result<()> {
+        println!("{}", part1()?);
+        Ok(())
+    }
+    fn part02(&self) -> Result<()> {
+        println!("{}", part2()?);
+        Ok(())
+    }
+}
 
 pub fn part1() -> Result<String> {
-    let prog = utils::load_program("a07-input")?;
+    let prog = utils::load_program("input07.txt")?;
     Ok(find_best(&prog, 0, start_avail())?.to_string())
 }
 
 pub fn part2() -> Result<String> {
-    let prog = utils::load_program_cell("a07-input")?;
+    let prog = utils::load_program_cell("input07.txt")?;
     find_best_chain(&prog, &vec![], &start_chain()).map(|x| x.to_string())
 }
 
@@ -25,7 +42,7 @@ fn find_best(prog: &Vec<i32>, carry: i32, avail: Vec<i32>) -> Result<i32> {
 
         let outputs = computer::exec(&mut prog.clone(), &inputs)?;
         if outputs.len() != 1 {
-            Err(format!("Expected 1 result but got {}", outputs.len()))?;
+            Err(anyhow!("Expected 1 result but got {}", outputs.len()))?;
         }
         let val = find_best(
             prog,
