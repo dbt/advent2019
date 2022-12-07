@@ -131,7 +131,7 @@ pub fn part1() -> Result<String> {
 }
 
 pub fn part2() -> Result<String> {
-    let  lines = read_lines("input03.txt")?;
+    let lines = read_lines("input03.txt")?;
     let input1 = lines[0].to_string();
     let input2 = lines[1].to_string();
     advent03b_dist(input1, input2).map(|x| x.to_string())
