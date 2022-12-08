@@ -11,3 +11,6 @@ num-bigint = "0.2"
 num-traits = "0.2"
 adventools = { path = "../adventools"}
 anyhow = "1"
+regex = "1"
+lazy_static = "1.4"
+num = "0.1"

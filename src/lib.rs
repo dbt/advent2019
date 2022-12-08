@@ -1,5 +1,8 @@
 extern crate adventools;
 extern crate anyhow;
+extern crate lazy_static;
+extern crate regex;
+extern crate num;
 
 use adventools::prelude::*;
 
@@ -19,6 +22,7 @@ pub mod day07;
 pub mod day08;
 pub mod day09;
 pub mod day11;
+pub mod day12;
 
 pub fn all_days() -> Vec<Box<dyn Day>> {
     vec![
@@ -32,5 +36,6 @@ pub fn all_days() -> Vec<Box<dyn Day>> {
         Box::new(day08::D {}),
         Box::new(day09::D {}),
         Box::new(day11::D {}),
+        Box::new(day12::D {}),
     ]
 }
