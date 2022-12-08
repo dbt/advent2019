@@ -6,8 +6,7 @@ use std::{cmp::Ordering, str::FromStr};
 
 use num::integer::lcm;
 
-
-#[derive(Copy,Clone)]
+#[derive(Copy, Clone)]
 struct Moon {
     x: i32,
     y: i32,
@@ -85,7 +84,7 @@ impl Day for D {
             .collect::<Result<_>>()?;
         process(&mut moons, 1000);
         let e: i32 = moons.iter().map(|m| m.energy()).sum();
-        println!("{}",  e);
+        println!("{}", e);
         Ok(())
     }
     fn part02(&self) -> Result<()> {
@@ -132,13 +131,13 @@ fn find_cycle_time(mut moons: Vec<Moon>) -> usize {
             }
         }
         if yloop == 0 {
-        let yhash: String = moons.iter().map(|m| format!("{},{},", m.y, m.dy)).collect();
+            let yhash: String = moons.iter().map(|m| format!("{},{},", m.y, m.dy)).collect();
             if yhash == ystart {
                 yloop = counter;
             }
         }
         if zloop == 0 {
-        let zhash: String = moons.iter().map(|m| format!("{},{},", m.z, m.dz)).collect();
+            let zhash: String = moons.iter().map(|m| format!("{},{},", m.z, m.dz)).collect();
             if zhash == zstart {
                 zloop = counter;
             }
@@ -146,8 +145,6 @@ fn find_cycle_time(mut moons: Vec<Moon>) -> usize {
     }
 
     lcm(lcm(xloop, yloop), zloop)
-
-
 }
 
 #[cfg(test)]
@@ -185,7 +182,11 @@ mod test {
         r"<x=-8, y=-10, z=0>
 <x=5, y=5, z=10>
 <x=2, y=-7, z=3>
-<x=9, y=-8, z=-3>".split('\n').map(|s| s.parse()).collect::<Result<_>>().unwrap()
+<x=9, y=-8, z=-3>"
+            .split('\n')
+            .map(|s| s.parse())
+            .collect::<Result<_>>()
+            .unwrap()
     }
 
     #[test]
@@ -201,6 +202,6 @@ mod test {
         let mut moons = test_data();
         assert_eq!(find_cycle_time(moons), 2772);
         moons = test_data2();
-        assert_eq!(find_cycle_time(moons),4686774924);
+        assert_eq!(find_cycle_time(moons), 4686774924);
     }
 }
