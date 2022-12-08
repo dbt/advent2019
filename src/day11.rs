@@ -76,48 +76,49 @@ impl Robot {
             .unwrap()
     }
     fn render(&self) -> String {
-        let min_x = self.panels.keys().map(|(x,_)| *x).min().unwrap();
-        let max_x = self.panels.keys().map(|(x,_)| *x).max().unwrap();
-        let min_y = self.panels.keys().map(|(_,y)| *y).min().unwrap();
+        let min_x = self.panels.keys().map(|(x, _)| *x).min().unwrap();
+        let max_x = self.panels.keys().map(|(x, _)| *x).max().unwrap();
+        let min_y = self.panels.keys().map(|(_, y)| *y).min().unwrap();
         let max_y = self.panels.keys().map(|(_, y)| *y).max().unwrap();
-        let s: Vec<String> = (min_y..=max_y).map(|y| {
-            (min_x..=max_x).map(move |x|{
-                match self.panels.get(&(x,y)) {
-                    None => ' ',
-                    Some(0) => ' ',
-                    Some(1) => '█',
-                    _ => unimplemented!()
-                }
-            }).collect()
-        }).collect();
+        let s: Vec<String> = (min_y..=max_y)
+            .map(|y| {
+                (min_x..=max_x)
+                    .map(move |x| match self.panels.get(&(x, y)) {
+                        None => ' ',
+                        Some(0) => ' ',
+                        Some(1) => '█',
+                        _ => unimplemented!(),
+                    })
+                    .collect()
+            })
+            .collect();
         s.join("\n")
     }
 }
 
 fn run(initial: u8) -> Result<Robot> {
-        let prog = load_program_cell("input11.txt")?;
-        let mut robot = Robot::new();
-        robot.paint(initial);
-        let mut runner = IntCode::new(&prog);
-        let mut state = runner.exec_multiple()?;
-        while state != ProgramState::Halted {
-            if state != ProgramState::Input {
-                unimplemented!();
-            }
-            runner.feed(robot.read() as Cell);
-            if let ProgramState::Output(color) = runner.exec_multiple()? {
+    let prog = load_program_cell("input11.txt")?;
+    let mut robot = Robot::new();
+    robot.paint(initial);
+    let mut runner = IntCode::new(&prog);
+    let mut state = runner.exec_multiple()?;
+    while state != ProgramState::Halted {
+        if state != ProgramState::Input {
+            unimplemented!();
+        }
+        runner.feed(robot.read() as Cell);
+        if let ProgramState::Output(color) = runner.exec_multiple()? {
             if let ProgramState::Output(dir) = runner.exec_multiple()? {
                 robot.paint_and_move(color as u8, dir as u8);
             } else {
                 unimplemented!()
             }
-            } else {
-                unimplemented!();
-
-            }
-            state = runner.exec_multiple()?;
+        } else {
+            unimplemented!();
         }
-        Ok(robot)
+        state = runner.exec_multiple()?;
+    }
+    Ok(robot)
 }
 
 pub struct D {}
